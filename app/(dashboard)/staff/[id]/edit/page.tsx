@@ -8,11 +8,19 @@ export default async function EditStaffPage({ params }: { params: Promise<{ id: 
   const { id } = await params
   const supabase = await createClient()
 
-  const { data: member } = await supabase
-    .from('staff')
-    .select('*')
-    .eq('id', id)
-    .single()
+const { data: { user } } = await supabase.auth.getUser()
+const { data: currentStaff } = await supabase
+  .from('staff')
+  .select('clinic_id')
+  .eq('user_id', user?.id)
+  .single()
+
+const { data: member } = await supabase
+  .from('staff')
+  .select('*')
+  .eq('id', id)
+  .eq('clinic_id', currentStaff?.clinic_id) // ← guard
+  .single()
 
   if (!member) notFound()
 

@@ -53,6 +53,12 @@ export default function AddStaffForm() {
       return
     }
 
+    if (!form.role) {
+  toast.error('Please select a role')
+  setLoading(false)
+  return
+}
+
     const { error } = await supabase.from('staff').insert({
       clinic_id: staffData.clinic_id,
       full_name: form.full_name,

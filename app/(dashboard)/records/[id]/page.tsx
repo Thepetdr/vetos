@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { ChevronLeft, Stethoscope } from 'lucide-react'
+import { ChevronLeft, Stethoscope, Edit } from 'lucide-react'
 import { format } from 'date-fns'
+import { Button } from '@/components/ui/button'
 
 export default async function RecordDetailPage({
   params,
@@ -42,10 +43,18 @@ export default async function RecordDetailPage({
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <div className="flex items-center justify-between">
       <Link href="/records" className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700">
-        <ChevronLeft className="h-4 w-4" />
-        Back to Records
-      </Link>
+    <ChevronLeft className="h-4 w-4" />
+    Back to Records
+  </Link>
+  <Link href={`/records/${record.id}/edit`}>
+    <Button variant="outline" size="sm" className="rounded-xl gap-2">
+      <Edit className="h-3.5 w-3.5" />
+      Edit
+    </Button>
+  </Link>
+  </div>
 
       {/* Record header */}
       <div className="card-premium overflow-hidden">

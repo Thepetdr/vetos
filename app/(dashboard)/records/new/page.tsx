@@ -11,17 +11,26 @@ export default async function NewRecordPage({
   const { patient_id, appointment_id } = await searchParams
   const supabase = await createClient()
 
-  const [{ data: patients }, { data: staff }] = await Promise.all([
-    supabase
-      .from('patients')
-      .select('id, name, species, breed, client_id, clients(id, full_name)')
-      .eq('is_deceased', false)
-      .order('name'),
-    supabase
-      .from('staff')
-      .select('id, full_name, role')
-      .in('role', ['vet', 'admin']),
-  ])
+ const { data: { user } } = await supabase.auth.getUser()
+const { data: staffData } = await supabase
+  .from('staff')
+  .select('clinic_id')
+  .eq('user_id', user?.id)
+  .single()
+
+const [{ data: patients }, { data: staff }] = await Promise.all([
+  supabase
+    .from('patients')
+    .select('id, name, species, breed, client_id, clients(id, full_name)')
+    .eq('clinic_id', staffData?.clinic_id)
+    .eq('is_deceased', false)
+    .order('name'),
+  supabase
+    .from('staff')
+    .select('id, full_name, role')
+    .eq('clinic_id', staffData?.clinic_id)
+    .in('role', ['veterinarian', 'vet_nurse']),
+])
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">

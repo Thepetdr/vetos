@@ -19,15 +19,23 @@ const typeConfig: Record<string, { color: string; icon: any }> = {
 export default async function RecordsPage() {
   const supabase = await createClient()
 
-  const { data: records } = await supabase
-    .from('soap_notes')
-    .select(`
-      *,
-      patients ( id, name, species, breed ),
-      clients ( id, full_name ),
-      staff!soap_notes_vet_id_fkey ( full_name )
-    `)
-    .order('visit_date', { ascending: false })
+  const { data: { user } } = await supabase.auth.getUser()
+const { data: staffData } = await supabase
+  .from('staff')
+  .select('clinic_id')
+  .eq('user_id', user?.id)
+  .single()
+
+const { data: records } = await supabase
+  .from('soap_notes')
+  .select(`
+    *,
+    patients ( id, name, species, breed ),
+    clients ( id, full_name ),
+    staff!soap_notes_vet_id_fkey ( full_name )
+  `)
+  .eq('clinic_id', staffData?.clinic_id)
+  .order('visit_date', { ascending: false })
 
   return (
     <div className="space-y-6">
